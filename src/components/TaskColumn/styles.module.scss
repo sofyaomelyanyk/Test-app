@@ -29,7 +29,9 @@
 }
 
 .taskTitle {
+  line-height: 1.2;
   font-size: 15px;
+  word-wrap: break-word;
 }
 
 .wrap {
@@ -37,4 +39,27 @@
   justify-content: center;
   align-items: center;
   gap: 5px;
+}
+
+.cardScroll {
+  padding-right: 10px;
+  max-height: 650px;
+  overflow-y: auto;
+}
+
+.cardScroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.cardScroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.cardScroll::-webkit-scrollbar-thumb {
+  background: #88888856;
+  border-radius: 4px;
+}
+
+.cardScroll::-webkit-scrollbar-thumb:hover {
+  background: #5555557e;
 }

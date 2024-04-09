@@ -1,7 +1,14 @@
 import { memo, useState } from "react";
 import getIssues from "../../api/getIssues";
 import { useAppDispatch } from "../../store/store";
-import { setTodo } from "../../store/slices/taskGallerySlice";
+import {
+  setError,
+  setTodo,
+  setUserProfileUrl,
+  setUserRepoUrl,
+} from "../../store/slices/taskGallerySlice";
+import { Button, Input } from "antd";
+import s from "./styles.module.scss";
 
 const RepoSearchForm = memo(() => {
   const [repoUrl, setRepoUrl] = useState("");
@@ -16,22 +23,31 @@ const RepoSearchForm = memo(() => {
       const repoName = urlParts[4];
 
       const issues = await getIssues(owner, repoName);
+      dispatch(
+        setUserProfileUrl(repoUrl.substring(0, repoUrl.lastIndexOf("/")))
+      );
+      dispatch(setUserRepoUrl(repoUrl));
       dispatch(setTodo(issues));
+      dispatch(setError(""));
       console.log(issues);
     } catch (error) {
-      console.error("Error fetching data:", error);
+      const message =
+        "Failed to fetch issues. Please check your repository URL and try again.";
+      dispatch(setError(message));
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
+    <form className={s.container} onSubmit={handleSubmit}>
+      <Input
         type="text"
         placeholder="Enter repo URL"
         value={repoUrl}
         onChange={(e) => setRepoUrl(e.target.value)}
       />
-      <button type="submit">Load</button>
+      <Button type="primary" htmlType="submit">
+        Load issues
+      </Button>
     </form>
   );
 });

@@ -1,20 +1,32 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+  userProfileUrl: null,
+  userRepoUrl: null,
   tasks: {
     toDo: [],
     inProgress: [],
     done: [],
   },
   currentBoard: null,
+  error: "",
 };
 
 const taskGallerySlice = createSlice({
   name: "taskGallery",
   initialState,
   reducers: {
+    setUserProfileUrl(state, action) {
+      state.userProfileUrl = action.payload;
+    },
+    setUserRepoUrl(state, action) {
+      state.userRepoUrl = action.payload;
+    },
     setCurrentBoard(state, action: PayloadAction<string>) {
       state.currentBoard = action.payload;
+    },
+    setError(state, action) {
+      state.error = action.payload;
     },
     setTodo(state, action) {
       state.tasks.toDo = action.payload;
@@ -46,6 +58,14 @@ const taskGallerySlice = createSlice({
   },
 });
 
-export const { setTodo, setInProgress, setDone, moveTask, setCurrentBoard } =
-  taskGallerySlice.actions;
+export const {
+  setTodo,
+  setInProgress,
+  setDone,
+  moveTask,
+  setCurrentBoard,
+  setUserProfileUrl,
+  setUserRepoUrl,
+  setError,
+} = taskGallerySlice.actions;
 export default taskGallerySlice.reducer;
