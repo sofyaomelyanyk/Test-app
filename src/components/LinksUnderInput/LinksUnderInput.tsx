@@ -11,10 +11,11 @@ const LinksUnderInput = memo(() => {
     userProfileUrl,
     userProfileName,
     errorMessage,
+    repositories,
   } = useTask();
   return (
     <>
-      {userRepoUrl && userProfileUrl && !errorMessage && (
+      {userRepoUrl && userProfileUrl  && !errorMessage && (
         <div className={s.container}>
           <Tooltip placement="topLeft" title={"Go to user profile"}>
             <a
