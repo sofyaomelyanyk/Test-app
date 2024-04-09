@@ -87,11 +87,20 @@ const taskGallerySlice = createSlice({
           task,
         ];
       }
+      state.currentBoard = null;
     },
     setExistingRepository(state, action: PayloadAction<{ repoUrl: string }>) {
       const { repoUrl } = action.payload;
       if (state.repositories[repoUrl]) {
         state.repositories[repoUrl] = state.repositories[repoUrl];
+      }
+    },
+    resetData(state, action: PayloadAction<{ errorMessage: string }>) {
+      const { errorMessage } = action.payload;
+      if (errorMessage !== "") {
+        state.currentBoard = "";
+        state.userProfileUrl = "";
+        state.userRepoUrl = "";
       }
     },
   },
@@ -107,5 +116,6 @@ export const {
   setUserProfileUrl,
   setUserRepoUrl,
   setError,
+  resetData,
 } = taskGallerySlice.actions;
 export default taskGallerySlice.reducer;

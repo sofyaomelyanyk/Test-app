@@ -2,6 +2,7 @@ import { memo, useState } from "react";
 import getIssues from "../../api/getIssues";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import {
+  resetData,
   setError,
   setExistingRepository,
   setTodo,
@@ -28,7 +29,6 @@ const RepoSearchForm = memo(() => {
 
       // Проверяем наличие данных в хранилище Redux
       if (repositories[repoUrl]) {
-        console.log("!!!!")
         dispatch(
           setUserProfileUrl(repoUrl.substring(0, repoUrl.lastIndexOf("/")))
         );
@@ -48,6 +48,7 @@ const RepoSearchForm = memo(() => {
       const message =
         "Failed to fetch issues. Please check your repository URL and try again.";
       dispatch(setError(message));
+      dispatch(resetData({ errorMessage: message }));
     }
   };
 
