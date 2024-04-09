@@ -1,8 +1,9 @@
 import { memo, useState } from "react";
 import getIssues from "../../api/getIssues";
-import { useAppDispatch } from "../../store/store";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 import {
   setError,
+  setExistingRepository,
   setTodo,
   setUserProfileUrl,
   setUserRepoUrl,
@@ -13,6 +14,9 @@ import s from "./styles.module.scss";
 const RepoSearchForm = memo(() => {
   const [repoUrl, setRepoUrl] = useState("");
   const dispatch = useAppDispatch();
+  const repositories = useAppSelector(
+    (state) => state.taskGallery.repositories
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,14 +26,24 @@ const RepoSearchForm = memo(() => {
       const owner = urlParts[3];
       const repoName = urlParts[4];
 
-      const issues = await getIssues(owner, repoName);
-      dispatch(
-        setUserProfileUrl(repoUrl.substring(0, repoUrl.lastIndexOf("/")))
-      );
-      dispatch(setUserRepoUrl(repoUrl));
-      dispatch(setTodo(issues));
-      dispatch(setError(""));
-      console.log(issues);
+      // Проверяем наличие данных в хранилище Redux
+      if (repositories[repoUrl]) {
+        console.log("!!!!")
+        dispatch(
+          setUserProfileUrl(repoUrl.substring(0, repoUrl.lastIndexOf("/")))
+        );
+        dispatch(setUserRepoUrl(repoUrl));
+        dispatch(setExistingRepository({ repoUrl }));
+        dispatch(setError(""));
+      } else {
+        const issues = await getIssues(owner, repoName);
+        dispatch(
+          setUserProfileUrl(repoUrl.substring(0, repoUrl.lastIndexOf("/")))
+        );
+        dispatch(setUserRepoUrl(repoUrl));
+        dispatch(setTodo({ repoUrl, tasks: issues }));
+        dispatch(setError(""));
+      }
     } catch (error) {
       const message =
         "Failed to fetch issues. Please check your repository URL and try again.";

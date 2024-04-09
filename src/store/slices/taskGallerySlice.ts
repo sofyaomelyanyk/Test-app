@@ -1,14 +1,27 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { TaskT } from "../../models/models";
 
-const initialState = {
-  userProfileUrl: null,
-  userRepoUrl: null,
-  tasks: {
-    toDo: [],
-    inProgress: [],
-    done: [],
-  },
-  currentBoard: null,
+interface RepositoryBoardsI {
+  toDo: TaskT[];
+  inProgress: TaskT[];
+  done: TaskT[];
+}
+
+interface initialStateI {
+  userProfileUrl: string;
+  userRepoUrl: string;
+  repositories: {
+    [repoUrl: string]: RepositoryBoardsI;
+  };
+  currentBoard: string;
+  error: string;
+}
+
+const initialState: initialStateI = {
+  userProfileUrl: "",
+  userRepoUrl: "",
+  repositories: {},
+  currentBoard: "",
   error: "",
 };
 
@@ -16,49 +29,76 @@ const taskGallerySlice = createSlice({
   name: "taskGallery",
   initialState,
   reducers: {
-    setUserProfileUrl(state, action) {
+    setUserProfileUrl(state, action: PayloadAction<string>) {
       state.userProfileUrl = action.payload;
     },
-    setUserRepoUrl(state, action) {
+    setUserRepoUrl(state, action: PayloadAction<string>) {
       state.userRepoUrl = action.payload;
     },
     setCurrentBoard(state, action: PayloadAction<string>) {
       state.currentBoard = action.payload;
     },
-    setError(state, action) {
+    setError(state, action: PayloadAction<string>) {
       state.error = action.payload;
     },
-    setTodo(state, action) {
-      state.tasks.toDo = action.payload;
+    setTodo(state, action: PayloadAction<{ repoUrl: string; tasks: TaskT[] }>) {
+      const { repoUrl, tasks } = action.payload;
+      if (!state.repositories[repoUrl]) {
+        state.repositories[repoUrl] = { toDo: [], inProgress: [], done: [] };
+      }
+      state.repositories[repoUrl].toDo = tasks;
     },
-    setInProgress(state, action) {
-      state.tasks.inProgress = action.payload;
+    setInProgress(
+      state,
+      action: PayloadAction<{ repoUrl: string; tasks: TaskT[] }>
+    ) {
+      const { repoUrl, tasks } = action.payload;
+      if (!state.repositories[repoUrl]) {
+        state.repositories[repoUrl] = { toDo: [], inProgress: [], done: [] };
+      }
+      state.repositories[repoUrl].inProgress = tasks;
     },
-    setDone(state, action) {
-      state.tasks.done = action.payload;
+    setDone(state, action: PayloadAction<{ repoUrl: string; tasks: TaskT[] }>) {
+      const { repoUrl, tasks } = action.payload;
+      if (!state.repositories[repoUrl]) {
+        state.repositories[repoUrl] = { toDo: [], inProgress: [], done: [] };
+      }
+      state.repositories[repoUrl].done = tasks;
     },
-    moveTask(state, action) {
-      const { taskId, destinationColumn } = action.payload;
-      console.log(taskId, destinationColumn);
-      const task = state?.tasks[state?.currentBoard]?.find(
+    moveTask(
+      state,
+      action: PayloadAction<{
+        repoUrl: string;
+        taskId: number;
+        destinationColumn: string;
+      }>
+    ) {
+      const { repoUrl, taskId, destinationColumn } = action.payload;
+      const task = state.repositories[repoUrl][state.currentBoard]?.find(
         (task) => task.id === taskId
       );
-      console.log(task);
+
       if (task) {
-        state.tasks[state.currentBoard] = state.tasks[
-          state.currentBoard
-        ]?.filter((t) => t.id !== taskId);
-        state.tasks[destinationColumn] = [
-          ...state.tasks[destinationColumn],
+        state.repositories[repoUrl][state.currentBoard] = state.repositories[
+          repoUrl
+        ][state.currentBoard]?.filter((t) => t.id !== taskId);
+        state.repositories[repoUrl][destinationColumn] = [
+          ...state.repositories[repoUrl][destinationColumn],
           task,
         ];
-        state.currentBoard = null;
+      }
+    },
+    setExistingRepository(state, action: PayloadAction<{ repoUrl: string }>) {
+      const { repoUrl } = action.payload;
+      if (state.repositories[repoUrl]) {
+        state.repositories[repoUrl] = state.repositories[repoUrl];
       }
     },
   },
 });
 
 export const {
+  setExistingRepository,
   setTodo,
   setInProgress,
   setDone,

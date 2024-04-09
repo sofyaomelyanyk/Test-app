@@ -9,12 +9,18 @@ import {
 import { useAppSelector } from "../store/store";
 
 const useTask = () => {
-  const toDoTasks = useAppSelector(selectToDoTasks);
-  const inProgressTasks = useAppSelector(selectInProgressTasks);
-  const doneTasks = useAppSelector(selectDoneTasks);
-
   const userRepoUrl = useAppSelector(selectUseRepoUrl);
   const userProfileUrl = useAppSelector(selectUseProfileUrl);
+
+  const toDoTasks = useAppSelector((state) =>
+    selectToDoTasks(state, userRepoUrl)
+  );
+  const inProgressTasks = useAppSelector((state) =>
+    selectInProgressTasks(state, userRepoUrl)
+  );
+  const doneTasks = useAppSelector((state) =>
+    selectDoneTasks(state, userRepoUrl)
+  );
 
   const userRepoName = userRepoUrl?.split("/").splice(-1)[0];
   const userProfileName = userProfileUrl?.split("/").splice(-1)[0];

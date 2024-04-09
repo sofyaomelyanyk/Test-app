@@ -1,110 +1,77 @@
 import { memo } from "react";
 import s from "./styles.module.scss";
 import calcDifferenceInDays from "../../helpers/calcDifferenceInDays";
-import { useAppDispatch } from "../../store/store";
-import { moveTask, setCurrentBoard } from "../../store/slices/taskGallerySlice";
 import { Card, Divider } from "antd";
+import calcTimeAgo from "../../helpers/calcTimeAgo";
+import { TaskT } from "../../models/models";
+import { FileOutlined } from "@ant-design/icons";
+import useDragAndDrop from "../../hooks/useDragAndDrop";
 
 interface TaskColumnI {
   title: string;
-  tasks: any;
+  tasks: TaskT[];
   column: string;
-  index: number;
+  columnIndex: number;
 }
 
-const TaskColumn = memo(({ index, title, tasks, column }: TaskColumnI) => {
-  const dispatch = useAppDispatch();
+const TaskColumn = memo(
+  ({ columnIndex, title, tasks, column }: TaskColumnI) => {
+    const { handleDragStart, handleDrop, handleDragOver } = useDragAndDrop();
 
-  const getCurrentColumn = (index: number): string => {
-    switch (index) {
-      case 0:
-        return "toDo";
-      case 1:
-        return "inProgress";
-      case 2:
-        return "done";
-      default:
-        return "";
-    }
-  };
-
-  const handleDragStart = (e, taskId: string) => {
-    e.dataTransfer.setData("text/plain", taskId);
-    const col = getCurrentColumn(index);
-    dispatch(setCurrentBoard(col));
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const taskId = e.dataTransfer.getData("text/plain");
-    dispatch(
-      moveTask({
-        taskId,
-        destinationColumn: column,
-      })
+    return (
+      <Card
+        title={title}
+        id={column}
+        style={{
+          width: 450,
+          height: 750,
+          border: "solid 1px #00000036",
+          boxShadow: "0px 0px 5px 0px rgba(0,0,0,0.75)",
+        }}
+        onDrop={(e) => handleDrop(e, column)}
+        onDragOver={handleDragOver}
+      >
+        <div className={s.cardScroll}>
+          {tasks?.length > 0 ? (
+            tasks.map((task, index) => {
+              const differenceInDays = calcDifferenceInDays(task);
+              return (
+                <Card
+                  key={task.id}
+                  draggable
+                  className={s.cardItem}
+                  style={{
+                    marginTop: index > 0 ? 5 : 0,
+                    boxShadow: "0px 0px 3px 0px rgba(0,0,0,0.75)",
+                  }}
+                  onDragStart={(e) => handleDragStart(e, task.id, columnIndex)}
+                >
+                  <h2 className={s.taskTitle}>{task?.title}</h2>
+                  <div className={s.wrap}>
+                    <p>#{task?.number}</p>
+                    <p>{calcTimeAgo(differenceInDays)}</p>
+                  </div>
+                  <div className={s.wrap}>
+                    <p>Admin</p>
+                    <Divider
+                      type="vertical"
+                      style={{ margin: 0, borderColor: "#00000036" }}
+                    />
+                    <p>Comments: {task.comments}</p>
+                  </div>
+                </Card>
+              );
+            })
+          ) : (
+            <div className={s.messageContainer}>
+              <FileOutlined style={{ fontSize: 20 }} />
+              <p>No data</p>
+            </div>
+          )}
+        </div>
+      </Card>
     );
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-  };
-
-  return (
-    <Card
-      title={title}
-      id={column}
-      style={{
-        marginBottom: 20,
-        width: 450,
-        height: 750,
-        border: "solid 1px #00000036",
-      }}
-      onDrop={handleDrop}
-      onDragOver={handleDragOver}
-    >
-      <div className={s.cardScroll}>
-        {" "}
-        {tasks?.length > 0 ? (
-          tasks.map((task, index) => {
-            const differenceInDays = calcDifferenceInDays(task);
-            console.log(differenceInDays);
-            return (
-              <Card
-                key={task.id}
-                draggable
-                style={{
-                  border: "solid 1px #00000036",
-                  marginTop: index > 0 ? 5 : 0,
-                }}
-                onDragStart={(e) => handleDragStart(e, task.id)}
-                className={s.cardItem}
-              >
-                <h2 className={s.taskTitle}>{task?.title}</h2>
-                <div className={s.wrap}>
-                  <p>#{task?.number}</p>
-                  <p>
-                    {differenceInDays >= 1
-                      ? `opened ${differenceInDays} days ago`
-                      : "opened recently"}
-                  </p>
-                </div>
-                <div className={s.wrap}>
-                  <p>Admin</p>
-                  <Divider
-                    type="vertical"
-                    style={{ margin: 0, borderColor: "#00000036" }}
-                  />
-                  <p>Comments: {task.comments}</p>
-                </div>
-              </Card>
-            );
-          })
-        ) : (
-          <p>No data</p>
-        )}
-      </div>
-    </Card>
-  );
-});
+  }
+);
 
 export default TaskColumn;

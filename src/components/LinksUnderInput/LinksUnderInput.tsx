@@ -2,13 +2,19 @@ import { ArrowRightOutlined } from "@ant-design/icons";
 import useTask from "../../hooks/useTask";
 import s from "./styles.module.scss";
 import { Tooltip } from "antd";
+import { memo } from "react";
 
-const LinksUnderInput = () => {
-  const { userRepoUrl, userRepoName, userProfileUrl, userProfileName } =
-    useTask();
+const LinksUnderInput = memo(() => {
+  const {
+    userRepoUrl,
+    userRepoName,
+    userProfileUrl,
+    userProfileName,
+    errorMessage,
+  } = useTask();
   return (
     <>
-      {userRepoUrl && userProfileUrl && (
+      {userRepoUrl && userProfileUrl && !errorMessage && (
         <div className={s.container}>
           <Tooltip placement="topLeft" title={"Go to user profile"}>
             <a
@@ -35,5 +41,5 @@ const LinksUnderInput = () => {
       )}
     </>
   );
-};
+});
 export default LinksUnderInput;
